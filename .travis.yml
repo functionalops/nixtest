@@ -1,0 +1,10 @@
+language: python
+python: "3.4"
+sudo: required
+dist: trusty
+
+install:
+  - bash -x z/setup/bootstrap
+
+script:
+  - bash -x z/ci/verify

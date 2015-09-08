@@ -1,0 +1,7 @@
+== nixtest
+
+image:https://travis-ci.org/functionalops/nixtest.svg["Build Status",
+link="https://travis-ci.org/functionalops/nixtest"]
+
+Tools and utilities to write, maintain, and run tests for Nix expressions.
+
