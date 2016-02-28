@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+declare -x NIX_REMOTE=daemon
+
+set -eu
+
+nix-instantiate --eval default.nix --parse --strict
+nix-instantiate --eval definitions.nix --parse --strict

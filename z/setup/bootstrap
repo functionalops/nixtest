@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+declare -r nix_version="1.9"
+declare -r nix_shasum=11f4f6b36008672abb78b6ab48dd80db3128f4b5aa6c1c24f0289e0c34cecea5
+
+function travisci_install() {
+  local -r filename="nix_${nix_version}-1_amd64.deb"
+  local -r nix_url="http://hydra.nixos.org/build/23017507/download/1/${filename}"
+  local -r username="$(whoami)"
+  local -r nix_db_dir="/nix/var/nix/db"
+
+  sudo apt-get install -y wget libdbd-sqlite3-perl libwww-curl-perl
+  wget -O "/tmp/${filename}" "${nix_url}"
+  echo "${nix_shasum} */tmp/${filename}" | shasum -a 256 -s -c -
+  sudo dpkg -i "/tmp/${filename}"
+
+  sudo mkdir -p "${nix_db_dir}"
+  sudo chmod -R ug+w "${nix_db_dir}"
+  sudo chown -R "${username}" "${nix_db_dir}"
+}
+
+set -eu
+
+# This case is under our control so at the moment we don't
+# need to check Nix version numbers. Everything should be
+# at least 1.9 or above.
+if [ -f "/etc/NIXOS" ]; then
+  echo "NixOS already installed. Nothing to do."
+elif lsb_release -i -s >/dev/null 2>&1; then
+  # masking errors doesn't happen since we already run the command above
+  declare -r lsb_id="$(lsb_release -i -s 2>/dev/null)"
+
+  case "${lsb_id}" in
+    # For Travis CI
+    Ubuntu|Debian)
+      travisci_install
+      ;;
+    *)
+      >&2 echo "Error: Unhandled distribution id"
+      ;;
+  esac
+fi
